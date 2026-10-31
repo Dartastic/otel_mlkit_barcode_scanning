@@ -1,15 +1,16 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_mlkit_barcode_scanning_suppression.dart';
 
 const _tracerName = 'dartastic_otel_libs_mlkit_barcode_scanning';
 
-Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
+APITracer _tracer() => OTelAPI.tracerProvider().getTracer(_tracerName);
 
 class MlkitBarcodeScanningResult {
+  /// Creates a result.
   const MlkitBarcodeScanningResult({
     this.formatsRequested,
     this.barcodeCount,
@@ -48,8 +49,13 @@ class MlkitBarcodeScanningResult {
   final bool? modelDownloaded;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class MlkitBarcodeScanningCallResult<T> {
+  /// Creates a call result.
   const MlkitBarcodeScanningCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final MlkitBarcodeScanningResult? result;
 }
@@ -73,7 +79,7 @@ Future<T> tracedMlkitBarcodeScanning<T>({
   final span = _tracer().startSpan(
     'mlkit_barcode_scanning $operation',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     final r = await invoke();
@@ -81,72 +87,72 @@ Future<T> tracedMlkitBarcodeScanning<T>({
       final res = r.result!;
       final extras = <Attribute<Object>>[];
       if (res.formatsRequested != null) {
-        extras.add(OTel.attributeStringList(
+        extras.add(OTelAPI.attributeStringList(
           'mlkit_barcode_scanning.formats.requested',
           res.formatsRequested!,
         ));
       }
       if (res.barcodeCount != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'mlkit_barcode_scanning.barcode.count',
           res.barcodeCount!,
         ));
       }
       if (res.primaryFormat != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'mlkit_barcode_scanning.primary.format',
           res.primaryFormat!,
         ));
       }
       if (res.primaryValueType != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'mlkit_barcode_scanning.primary.value_type',
           res.primaryValueType!,
         ));
       }
       if (res.rawValueLength != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'mlkit_barcode_scanning.raw_value.length',
           res.rawValueLength!,
         ));
       }
       if (res.inputImageWidth != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'mlkit_barcode_scanning.input.width',
           res.inputImageWidth!,
         ));
       }
       if (res.inputImageHeight != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'mlkit_barcode_scanning.input.height',
           res.inputImageHeight!,
         ));
       }
       if (res.inputImageSource != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'mlkit_barcode_scanning.input.source',
           res.inputImageSource!,
         ));
       }
       if (res.processingMs != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'mlkit_barcode_scanning.processing_ms',
           res.processingMs!,
         ));
       }
       if (res.modelDownloaded != null) {
-        extras.add(OTel.attributeBool(
+        extras.add(OTelAPI.attributeBool(
           'mlkit_barcode_scanning.model.downloaded',
           res.modelDownloaded!,
         ));
       }
-      if (extras.isNotEmpty) span.addAttributes(OTel.attributes(extras));
+      if (extras.isNotEmpty) span.addAttributes(OTelAPI.attributes(extras));
     }
     return r.value;
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
